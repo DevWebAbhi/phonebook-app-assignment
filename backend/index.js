@@ -2,9 +2,10 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const { getPool } = require("./dbConfig");  
+const { contactRouter } = require("./contact");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3005;
 
 
 app.use(express.json());  
@@ -15,6 +16,7 @@ app.get("/", (req, res) => {
     return res.status(200).send({ message: "This is PHONEBOOK backend" });
 });
 
+app.use("/contact",contactRouter);
 
 async function testDatabaseConnection() {
     const pool = getPool();
