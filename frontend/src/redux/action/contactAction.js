@@ -52,18 +52,66 @@ export const updateContact =async(data)=>{
 export const deleteContact =async(id,toast)=>{
     try {
 
-        const deleteContactEntry = await axios.delete(`http://localhost:8080/contact/delete/${id}`);
-        console.log(deleteContactEntry)
+        const createAvaliablity = await axios.delete(`http://localhost:8080/contact/delete/${id}`);
+        console.log(createAvaliablity)
         toast({
             title: 'sucessfully Deleted',
             status: 'success',
             duration: 9000,
             isClosable: true,
           })
-        return deleteContactEntry;
+        return createAvaliablity;
     } catch (error) {
         toast({
             title: 'Failed deletion',
+            status: 'success',
+            duration: 9000,
+            isClosable: true,
+          })
+        console.log(error)
+        return error;
+    }
+}
+
+export const createAvaliablity =async(data,toast)=>{
+    try {
+        console.log(data)
+        const createAvaliablity = await axios.post(`http://localhost:8080/avalivility/post`,data);
+        console.log(createAvaliablity)
+        toast({
+            title: 'sucessfully created',
+            status: 'success',
+            duration: 9000,
+            isClosable: true,
+          })
+        return createAvaliablity;
+    } catch (error) {
+        toast({
+            title: 'Failed creation',
+            status: 'success',
+            duration: 9000,
+            isClosable: true,
+          })
+        console.log(error)
+        return error;
+    }
+}
+
+export const deleteAvaliablity =async(id,date,toast)=>{
+    try {
+       
+        const createAvaliablity = await axios.delete(`http://localhost:8080/avalivility/delete/${id}/${date}`);
+        console.log(createAvaliablity)
+        toast({
+            title: 'sucessfully Deleted',
+            status: 'success',
+            duration: 9000,
+            isClosable: true,
+          })
+        return createAvaliablity;
+    } catch (error) {
+        toast({
+            title: 'Failed Deletion',
             status: 'success',
             duration: 9000,
             isClosable: true,
