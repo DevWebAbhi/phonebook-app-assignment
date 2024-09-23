@@ -235,7 +235,7 @@ function deleteContactAvalibility(date){
     <Tbody>
       
         {
-          data.length>0?[...data].sort(function(a, b){return a < b}).map((e,index)=>(
+          data.length>0?[...data].sort(function(a, b){return a > b}).map((e,index)=>(
             e.day?
             <Tr key={e.date}>
               <Td>{e.day}</Td>
