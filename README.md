@@ -6,7 +6,7 @@ Phonebook Admin Manager is a web application designed to efficiently manage cont
 
 * Link: https://drive.google.com/file/d/1LFL_ZlODrY2a9EXbxV9dqQZsirtCqabR/view?usp=sharing
 
-## Technoligies Used
+## Technologies Used
 --------------------
 
 * Frontend: React.js (deployed on Vercel)
