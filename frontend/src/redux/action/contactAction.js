@@ -49,7 +49,7 @@ export const createContact =async(data,toast)=>{
             duration: 3000,
             isClosable: true,
           });
-          getContact();
+          
         return post;
     } catch (error) {
         console.log(error)
@@ -73,7 +73,7 @@ export const updateContact =async(data,toast)=>{
             duration: 9000,
             isClosable: true,
           });
-         await getContact()
+         
         return post;
     } catch (error) {
         console.log(error)
@@ -98,7 +98,7 @@ export const deleteContact =async(id,toast)=>{
             duration: 9000,
             isClosable: true,
           })
-          await getContact()
+          
         return createAvaliablity;
     } catch (error) {
         toast({
@@ -123,7 +123,7 @@ export const createAvaliablity =async(data,toast)=>{
             duration: 9000,
             isClosable: true,
           })
-          await getContact()
+          
         return createAvaliablity;
     } catch (error) {
         toast({
@@ -148,7 +148,7 @@ export const deleteAvaliablity =async(id,date,toast)=>{
             duration: 9000,
             isClosable: true,
           })
-          await getContact()
+          
         return createAvaliablity;
     } catch (error) {
         toast({

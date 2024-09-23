@@ -39,9 +39,7 @@ const Home = () => {
     }, 3000);
   }
 
-  function deleteContactFunction(id) {
-    dispatch(deleteContact(id, toast));
-  }
+ 
 
   useEffect(() => {
     setLoading(true);
@@ -49,9 +47,9 @@ const Home = () => {
     setLoading(false);
   }, []);
 
-  function updateContactFunction(id) {
+  async function updateContactFunction(id) {
     try {
-      dispatch(updateContact({ id, name: selector.name, contact: selector.phoneNumber },toast));
+     await dispatch(updateContact({ id, name: selector.name, contact: selector.phoneNumber },toast));
       
     } catch (error) {
       console.log(error)
@@ -80,6 +78,7 @@ const Home = () => {
 
   return (
     <Box width={"80%"} margin={"auto"} paddingTop={"3.5rem"}>
+      <Heading>Phonebook Admin Manager</Heading>
       <Box display={"flex"} margin={"auto"} w={"min-content"} padding={"1rem"}>
         <Box w={"15rem"}>
           <Input onChange={(e) => { setSearch(e.target.value); searching() }} />
@@ -118,7 +117,7 @@ const Home = () => {
                 <AvavilityDetails id={contact.id} data = {contact.availability}/>
                 <TimeAvaliability id={contact.id} />
                 <EditContact id={contact.id} p_name={contact.name} p_phone={contact.phone} updateContactFunction={updateContactFunction} />
-                <Button onClick={() => deleteContactFunction(contact.id)}>Delete</Button>
+                <DeletionModel id={contact.id}/>
               </Box>
             </Box>
           );
@@ -146,9 +145,9 @@ function EditContact({ id, p_name, p_phone, updateContactFunction }) {
 
   return (
     <>
-      <Button onClick={onOpen}>Edit</Button>
+      <Button onClick={onOpen} margin={"0.5rem"}>Edit</Button>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={()=>{onClose();dispatch(getContact());}}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Edit Contact</ModalHeader>
@@ -169,6 +168,38 @@ function EditContact({ id, p_name, p_phone, updateContactFunction }) {
   );
 }
 
+
+function DeletionModel({ id }) {
+  
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const selector = useSelector(store => store.contactReducer);
+  const dispatch = useDispatch();
+  const toast = useToast();
+
+  return (
+    <>
+      <Button onClick={onOpen} margin={"0.5rem"}>Delete</Button>
+
+      <Modal isOpen={isOpen} onClose={()=>{onClose();dispatch(getContact());}}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Edit Contact</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme='blue' mr={3} onClick={() => { deleteContact(id,toast) }}>
+              Confirm Delete
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
+  );
+}
+
 function AvavilityDetails({ data,id }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const selector = useSelector(store => store.contactReducer);
@@ -181,9 +212,9 @@ function deleteContactAvalibility(date){
 
   return (
     <>
-      <Button onClick={onOpen}>Avaliablity Details</Button>
+      <Button onClick={onOpen} margin={"0.5rem"}>Avaliablity Details</Button>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={()=>{onClose();dispatch(getContact());}}>
         <ModalOverlay />
         <ModalContent maxWidth="90vw" width="90%">
           <ModalHeader>Avaliablity Details</ModalHeader>
@@ -204,7 +235,8 @@ function deleteContactAvalibility(date){
     <Tbody>
       
         {
-          [...data].sort(function(a, b){return a < b}).map((e,index)=>(
+          data.length>0?[...data].sort(function(a, b){return a < b}).map((e,index)=>(
+            e.day?
             <Tr key={e.date}>
               <Td>{e.day}</Td>
               <Td>{e.start_time}</Td>
@@ -212,8 +244,8 @@ function deleteContactAvalibility(date){
               <Td>{e.unavailable_start} to {e.unavailable_end}</Td>
               <Td>{e.date}</Td>
               <Td ><Button onClick={es=>{deleteContactAvalibility(e.date)}}>DELETE</Button></Td>
-            </Tr>
-          ))
+            </Tr>:<></>
+          )):<></>
          }
       
     </Tbody>
@@ -308,7 +340,7 @@ function TimeAvaliability({id}) {
       
       
   
-      onClose(); 
+     
     } catch (error) {
       
       console.log("Error submitting availability:", error);
@@ -318,9 +350,9 @@ function TimeAvaliability({id}) {
 
   return (
     <>
-      <Button onClick={onOpen}>Set Availability</Button>
+      <Button onClick={onOpen} margin={"0.5rem"}>Set Availability</Button>
 
-      <Modal isOpen={isOpen} onClose={onClose} size="full">
+      <Modal isOpen={isOpen} onClose={()=>{onClose();dispatch(getContact());}} size="full">
         <ModalOverlay />
         <ModalContent maxWidth="90vw" width="90%">
           <ModalHeader>Select Availability</ModalHeader>
@@ -457,7 +489,7 @@ function TimeAvaliability({id}) {
             <Button colorScheme="blue" mr={3} onClick={handleSubmit} fontSize="lg" padding="1.5rem">
               Save
             </Button>
-            <Button variant="ghost" onClick={onClose} fontSize="lg" padding="1.5rem">Cancel</Button>
+           
           </ModalFooter>
         </ModalContent>
       </Modal>
