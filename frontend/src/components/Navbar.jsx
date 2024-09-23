@@ -24,7 +24,7 @@ const Navbar = () => {
       background={
         "linear-gradient(90deg, rgba(110,13,156,1) 0%, rgba(130,169,213,1) 100%, rgba(0,40,255,1) 100%);"
       }
-      color={"magenta"}
+      fontSize={"larger"}
     >
       {isLargerThan900 ? (
         <>
