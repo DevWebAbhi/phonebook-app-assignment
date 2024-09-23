@@ -51,20 +51,10 @@ const CreateContact = () => {
     }
 
     try {
-      dispatch(createContact({ name: selector.name, contact: selector.phoneNumber }));
-      toast({
-        title: 'Contact created successfully',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
+      dispatch(createContact({ name: selector.name, contact: selector.phoneNumber },toast));
+      
     } catch (error) {
-      toast({
-        title: 'Something went wrong',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
+      console.log(error)
     }
   }
 

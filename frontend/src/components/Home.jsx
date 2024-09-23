@@ -34,13 +34,13 @@ const Home = () => {
     }
     ref.current = setTimeout(() => {
       setLoading(true);
-      dispatch(getSearchedContact(search));
+      dispatch(getSearchedContact(search,toast));
       setLoading(false);
     }, 3000);
   }
 
   function deleteContactFunction(id) {
-    deleteContact(id, toast);
+    dispatch(deleteContact(id, toast));
   }
 
   useEffect(() => {
@@ -51,20 +51,10 @@ const Home = () => {
 
   function updateContactFunction(id) {
     try {
-      dispatch(updateContact({ id, name: selector.name, contact: selector.phoneNumber }));
-      toast({
-        title: 'Updated successfully',
-        status: 'success',
-        duration: 9000,
-        isClosable: true,
-      });
+      dispatch(updateContact({ id, name: selector.name, contact: selector.phoneNumber },toast));
+      
     } catch (error) {
-      toast({
-        title: 'Something went wrong',
-        status: 'error',
-        duration: 9000,
-        isClosable: true,
-      });
+      console.log(error)
     }
   }
 
@@ -112,7 +102,7 @@ const Home = () => {
               background={isCurrentlyUnavailable ? 'gray' : 'rgba(126, 101, 159 ,0.5)'}
               padding={"0.5rem"} 
               borderRadius={"0.5rem"}
-              _hover={{ background: 'lightgray' }}
+              _hover={{ background: 'lightpink' }}
               cursor="pointer"
             >
               <Box>
@@ -202,7 +192,6 @@ function deleteContactAvalibility(date){
            
            <TableContainer>
   <Table variant='simple'>
-    <TableCaption>Imperial to metric conversion factors</TableCaption>
     <Thead>
       <Tr>
         <Th>Day</Th>
@@ -228,13 +217,7 @@ function deleteContactAvalibility(date){
          }
       
     </Tbody>
-    <Tfoot>
-      <Tr>
-        <Th>To convert</Th>
-        <Th>into</Th>
-        <Th isNumeric>multiply by</Th>
-      </Tr>
-    </Tfoot>
+   
   </Table>
 </TableContainer>
           </ModalBody>
@@ -256,7 +239,7 @@ function TimeAvaliability({id}) {
   const [selectedUnavailableStart, setSelectedUnavailableStart] = useState(null);
   const [selectedUnavailableEnd, setSelectedUnavailableEnd] = useState(null);
   const toast = useToast();
-
+  const dispatch = useDispatch();
   const timeSlots = [
     '08:00 AM', '08:30 AM', '09:00 AM', '09:30 AM', '12:00 PM', '12:30 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '05:30 PM'
   ];
@@ -320,7 +303,7 @@ function TimeAvaliability({id}) {
   
     try {
       
-      await createAvaliablity(data, toast);
+      createAvaliablity(data, toast);
       console.log(id,"hdfhdf")
       
       
