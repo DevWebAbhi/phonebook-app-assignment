@@ -4,7 +4,7 @@ import { GET_ALL_CONTACTS } from "../actionTypes.js/contactActionTypes";
 
 export const getContact = ()=>async(dispatch)=>{
     try {
-        const get = await axios.get(`http://localhost:8080/contact`);
+        const get = await axios.get(`https://phonebook-app-assignment.onrender.com/contact`);
         console.log(get)
         dispatch({type:GET_ALL_CONTACTS,payload:get.data.contacts[0]});
         return get;
@@ -17,7 +17,7 @@ export const getContact = ()=>async(dispatch)=>{
 export const getSearchedContact = (search,toast)=>async(dispatch)=>{
     console.log(search)
     try {
-        const get = await axios.get(`http://localhost:8080/contact/search`,{params:{search}});
+        const get = await axios.get(`https://phonebook-app-assignment.onrender.com/contact/search`,{params:{search}});
         console.log(get)
         toast({
             title: 'successfully searched',
@@ -41,7 +41,7 @@ export const getSearchedContact = (search,toast)=>async(dispatch)=>{
 
 export const createContact =async(data,toast)=>{
     try {
-        const post = await axios.post(`http://localhost:8080/contact/create`,data);
+        const post = await axios.post(`https://phonebook-app-assignment.onrender.com/contact/create`,data);
         console.log(post)
         toast({
             title: 'Contact created successfully',
@@ -65,7 +65,7 @@ export const createContact =async(data,toast)=>{
 
 export const updateContact =async(data,toast)=>{
     try {
-        const post = await axios.patch(`http://localhost:8080/contact/update`,data);
+        const post = await axios.patch(`https://phonebook-app-assignment.onrender.com/contact/update`,data);
         console.log(post)
         toast({
             title: 'Updated successfully',
@@ -90,7 +90,7 @@ export const updateContact =async(data,toast)=>{
 export const deleteContact =async(id,toast)=>{
     try {
 
-        const createAvaliablity = await axios.delete(`http://localhost:8080/contact/delete/${id}`);
+        const createAvaliablity = await axios.delete(`https://phonebook-app-assignment.onrender.com/contact/delete/${id}`);
         console.log(createAvaliablity)
         toast({
             title: 'sucessfully Deleted',
@@ -115,7 +115,7 @@ export const deleteContact =async(id,toast)=>{
 export const createAvaliablity =async(data,toast)=>{
     try {
         console.log(data)
-        const createAvaliablity = await axios.post(`http://localhost:8080/avalivility/post`,data);
+        const createAvaliablity = await axios.post(`https://phonebook-app-assignment.onrender.com/avalivility/post`,data);
         console.log(createAvaliablity)
         toast({
             title: 'sucessfully created',
@@ -140,7 +140,7 @@ export const createAvaliablity =async(data,toast)=>{
 export const deleteAvaliablity =async(id,date,toast)=>{
     try {
        
-        const createAvaliablity = await axios.delete(`http://localhost:8080/avalivility/delete/${id}/${date}`);
+        const createAvaliablity = await axios.delete(`https://phonebook-app-assignment.onrender.com/avalivility/delete/${id}/${date}`);
         console.log(createAvaliablity)
         toast({
             title: 'sucessfully Deleted',
