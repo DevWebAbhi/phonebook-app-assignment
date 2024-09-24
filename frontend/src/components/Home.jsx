@@ -91,17 +91,16 @@ const Home = () => {
 
   const isUnavailable = (availability) => {
     const currentTime = new Date();
-    return availability.some(slot => {
+    return availability.some((slot) => {
       const startTime = new Date(`${slot.date}T${slot.unavailable_start}`);
       const endTime = new Date(`${slot.date}T${slot.unavailable_end}`);
       return currentTime >= startTime && currentTime <= endTime;
     });
   };
 
-  
   const isAvailable = (availability) => {
     const currentTime = new Date();
-    return availability.some(slot => {
+    return availability.some((slot) => {
       const startTime = new Date(`${slot.date}T${slot.start_time}`);
       const endTime = new Date(`${slot.date}T${slot.end_time}`);
       return currentTime >= startTime && currentTime <= endTime;
@@ -397,12 +396,11 @@ function AvavilityDetails({ data, id, index, setLoading, setErrorBool }) {
   const dispatch = useDispatch();
   const toast = useToast();
 
-  // Function to convert 24-hour time to 12-hour AM/PM format
   function convertToAmPm(timeString) {
     const [hours, minutes] = timeString.split(":");
     let hour = parseInt(hours, 10);
     const ampm = hour >= 12 ? "PM" : "AM";
-    hour = hour % 12 || 12; // Convert 0 to 12 for midnight
+    hour = hour % 12 || 12;
     return `${hour}:${minutes} ${ampm}`;
   }
 
@@ -456,7 +454,8 @@ function AvavilityDetails({ data, id, index, setLoading, setErrorBool }) {
                             <Td>{convertToAmPm(e.start_time)}</Td>
                             <Td>{convertToAmPm(e.end_time)}</Td>
                             <Td>
-                              {convertToAmPm(e.unavailable_start)} to {convertToAmPm(e.unavailable_end)}
+                              {convertToAmPm(e.unavailable_start)} to{" "}
+                              {convertToAmPm(e.unavailable_end)}
                             </Td>
                             <Td>{e.date}</Td>
                             <Td>
@@ -487,7 +486,6 @@ function AvavilityDetails({ data, id, index, setLoading, setErrorBool }) {
     </>
   );
 }
-
 
 function TimeAvailability({ id, setLoading, setErrorBool }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -614,7 +612,7 @@ function TimeAvailability({ id, setLoading, setErrorBool }) {
       });
       return;
     }
-  
+
     if (selectedUnavailableStart && !selectedUnavailableEnd) {
       toast({
         title: "Selection Error",
@@ -625,13 +623,14 @@ function TimeAvailability({ id, setLoading, setErrorBool }) {
       });
       return;
     }
-  
-    
-    const validSelectedDate = new Date(selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000);
-  
+
+    const validSelectedDate = new Date(
+      selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000
+    );
+
     const data = {
       id,
-      date: validSelectedDate.toISOString().split("T")[0], // Correct local date
+      date: validSelectedDate.toISOString().split("T")[0],
       day: getDayOfWeek(validSelectedDate),
       startTime: formatTimeWithDate(validSelectedDate, selectedStartTime),
       endTime: formatTimeWithDate(validSelectedDate, selectedEndTime),
@@ -642,7 +641,7 @@ function TimeAvailability({ id, setLoading, setErrorBool }) {
         ? formatTimeWithDate(validSelectedDate, selectedUnavailableEnd)
         : "00:00:00",
     };
-  
+
     try {
       console.log(data);
       createAvaliablity(data, toast);
@@ -650,7 +649,6 @@ function TimeAvailability({ id, setLoading, setErrorBool }) {
       console.log("Error submitting availability:", error);
     }
   };
-  
 
   return (
     <>
