@@ -91,22 +91,22 @@ const Home = () => {
 
   const isUnavailable = (availability) => {
     const currentTime = new Date();
-    return availability.some((slot) => {
+    return availability.some(slot => {
       const startTime = new Date(`${slot.date}T${slot.unavailable_start}`);
       const endTime = new Date(`${slot.date}T${slot.unavailable_end}`);
       return currentTime >= startTime && currentTime <= endTime;
     });
   };
 
+  
   const isAvailable = (availability) => {
     const currentTime = new Date();
-    return availability.some((slot) => {
+    return availability.some(slot => {
       const startTime = new Date(`${slot.date}T${slot.start_time}`);
       const endTime = new Date(`${slot.date}T${slot.end_time}`);
       return currentTime >= startTime && currentTime <= endTime;
     });
   };
-
   return (
     <Box
       width={isLargerThan500 ? "80%" : "95%"}
@@ -614,7 +614,7 @@ function TimeAvailability({ id, setLoading, setErrorBool }) {
       });
       return;
     }
-
+  
     if (selectedUnavailableStart && !selectedUnavailableEnd) {
       toast({
         title: "Selection Error",
@@ -625,12 +625,13 @@ function TimeAvailability({ id, setLoading, setErrorBool }) {
       });
       return;
     }
-
-    const validSelectedDate = new Date(selectedDate);
-
+  
+    
+    const validSelectedDate = new Date(selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000);
+  
     const data = {
       id,
-      date: validSelectedDate.toISOString().split("T")[0],
+      date: validSelectedDate.toISOString().split("T")[0], // Correct local date
       day: getDayOfWeek(validSelectedDate),
       startTime: formatTimeWithDate(validSelectedDate, selectedStartTime),
       endTime: formatTimeWithDate(validSelectedDate, selectedEndTime),
@@ -641,13 +642,15 @@ function TimeAvailability({ id, setLoading, setErrorBool }) {
         ? formatTimeWithDate(validSelectedDate, selectedUnavailableEnd)
         : "00:00:00",
     };
-
+  
     try {
+      console.log(data);
       createAvaliablity(data, toast);
     } catch (error) {
       console.log("Error submitting availability:", error);
     }
   };
+  
 
   return (
     <>
