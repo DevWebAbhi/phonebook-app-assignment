@@ -570,24 +570,24 @@ function TimeAvailability({ id, setLoading, setErrorBool }) {
   });
 
   const getDayOfWeek = (date) => {
-    const validDate = new Date(date); 
+    const validDate = new Date(date);
     return validDate.toLocaleDateString("en-US", { weekday: "long" });
   };
   const formatTimeWithDate = (date, time) => {
     const validDate = new Date(date);
-    let [hours, minutes] = time.split(/[:\s]/); 
+    let [hours, minutes] = time.split(/[:\s]/);
 
     const isPM = time.includes("PM");
 
     if (isPM && hours !== "12") {
       hours = parseInt(hours) + 12;
     } else if (!isPM && hours === "12") {
-      hours = "00"; 
+      hours = "00";
     }
 
     validDate.setHours(parseInt(hours), parseInt(minutes), 0);
 
-    const formattedTime = validDate.toTimeString().split(" ")[0]; 
+    const formattedTime = validDate.toTimeString().split(" ")[0];
     return formattedTime;
   };
 
@@ -653,16 +653,15 @@ function TimeAvailability({ id, setLoading, setErrorBool }) {
         size="full"
       >
         <ModalOverlay />
-        <ModalContent maxWidth="90vw" width="90%">
+        <ModalContent maxWidth="95vw" width="95%">
           <ModalHeader>Select Availability</ModalHeader>
           <ModalCloseButton />
-          <ModalBody width="90%">
+          <ModalBody width="95%">
             <Box
               display="flex"
               flexDirection={["column", "column", "row"]}
-              alignItems="center"
               justifyContent="center"
-              padding="2rem"
+              padding="1rem"
             >
               <Box
                 marginBottom={["2rem", "2rem", "0"]}

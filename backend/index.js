@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-require("dotenv").config();
-const { getPool } = require("./dbConfig");  
+require("dotenv").config(); 
 const { contactRouter } = require("./contact");
 const { avaliabilityRouter } = require("./avalability");
 
@@ -21,22 +20,8 @@ app.use("/contact",contactRouter);
 
 app.use("/avalivility",avaliabilityRouter);
 
-async function testDatabaseConnection() {
-    const pool = getPool();
-    try {
-        const connection = await pool.getConnection();
-        console.log("DB connected successfully");
-        connection.release(); 
-    } catch (error) {
-        console.error("DB connection failed:", error);
-        throw error;  
-    }
-}
-
-
 app.listen(PORT, async () => {
     try {
-        await testDatabaseConnection();  
         console.log(`Server running on port ${PORT}`);
     } catch (error) {
         console.error("Failed to start the server due to database connection issues");
