@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Box, Heading, Input, Button, useToast, SimpleGrid, Text, Tooltip } from "@chakra-ui/react";
+import { Box, Heading, Input, Button, useToast, SimpleGrid, Text, Tooltip, useMediaQuery } from "@chakra-ui/react";
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteAvaliablity, deleteContact, getContact, getSearchedContact, updateContact } from '../redux/action/contactAction';
 import {
-  Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure
+  Modal, ModalOverlay,Skeleton, SkeletonCircle, SkeletonText, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure
 } from '@chakra-ui/react';
 import { createAvaliablity } from '../redux/action/contactAction';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { NAME, PHONE_NUMBER } from '../redux/actionTypes.js/contactActionTypes';
+import { GET_ALL_CONTACTS, NAME, PHONE_NUMBER } from '../redux/actionTypes.js/contactActionTypes';
 import {
   Table,
   Thead,
@@ -24,7 +24,12 @@ const Home = () => {
   const selector = useSelector(store => store.contactReducer);
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
+  const [errorBool, setErrorBool] = useState(false);
   const [search, setSearch] = useState("");
+  const [isLargerThan500] = useMediaQuery('(min-width: 500px)')
+  const [isLargerThan1270] = useMediaQuery('(min-width: 1270px)')
+  const [isLargerThan900] = useMediaQuery('(min-width: 900px)')
+  const [isLargerThan600] = useMediaQuery('(min-width: 600px)')
   const ref = useRef();
   const toast = useToast();
 
@@ -33,18 +38,16 @@ const Home = () => {
       clearTimeout(ref.current);
     }
     ref.current = setTimeout(() => {
-      setLoading(true);
-      dispatch(getSearchedContact(search,toast));
-      setLoading(false);
+      
+      dispatch(getSearchedContact(search,toast,setLoading,setErrorBool));
+      
     }, 3000);
   }
 
  
 
   useEffect(() => {
-    setLoading(true);
-    dispatch(getContact());
-    setLoading(false);
+    dispatch(getContact(setLoading,setErrorBool));
   }, []);
 
   async function updateContactFunction(id) {
@@ -77,60 +80,112 @@ const Home = () => {
   };
 
   return (
-    <Box width={"80%"} margin={"auto"} paddingTop={"3.5rem"}>
+    <Box width={isLargerThan500?"80%":"95%"} margin={"auto"} paddingTop={"3.5rem"}>
       <Heading>Phonebook Admin Manager</Heading>
-      <Box display={"flex"} margin={"auto"} w={"min-content"} padding={"1rem"}>
-        <Box w={"15rem"}>
+      <Box display={"flex"} margin={"auto"} width={isLargerThan1270?"30%":isLargerThan900?"45%":isLargerThan600?"65%":isLargerThan500?"80%":"100%"} padding={"1rem"}>
+        <Box >
           <Input onChange={(e) => { setSearch(e.target.value); searching() }} />
         </Box>
-        <Button onClick={() => {
-          dispatch(getContact());
+        <Button fontSize={isLargerThan500?"medium":"smaller"} onClick={() => {
+          dispatch(getContact(setLoading,setErrorBool));
         }}>Reset Search</Button>
       </Box>
-      {
-        selector.contacts ? selector.contacts.map((contact) => {
-          const isCurrentlyUnavailable = isUnavailable(contact.availability);
-          const isCurrentlyAvailable = isAvailable(contact.availability);
+      {errorBool ? (
+  <Heading>Something went wrong</Heading>
+) : loading ? (
+  <>
+    
+    {[...Array(4)].map((_, idx) => (
+      <Box key={idx} background={"#C7C7C7"} padding="6" boxShadow="lg" bg="white" display="flex" justifyContent="space-between" marginBottom={"1rem"}>
+      <Box width={"35%"}>
+        <SkeletonText mt="4" noOfLines={1} spacing="4" skeletonHeight="12" />
+        <SkeletonText mt="2" noOfLines={1} spacing="0" skeletonHeight="5" />
+        <SkeletonText mt="2" noOfLines={1} spacing="0" skeletonHeight="2" />
+      </Box>
+      <Box display="flex" justifyContent="space-around" width={"39%"}>
+        <Skeleton height="9" width="7rem" />
+        <Skeleton height="9" width="6rem" />
+        <Skeleton height="9" width="5rem" />
+        <Skeleton height="9" width="5rem" />
+      </Box>
+      <SkeletonText mt="4" noOfLines={4} spacing="4" skeletonHeight="2" />
+    </Box>
+    ))}
+  </>
+) : selector.contacts ? (
+  selector.contacts.length === 0 ? (
+    <Heading>No Contacts Found</Heading>
+  ) : (
+    selector.contacts.map((contact,index) => {
+      const isCurrentlyUnavailable = isUnavailable(contact.availability);
+      const isCurrentlyAvailable = isAvailable(contact.availability);
 
-          return (
-            <Box 
-              key={contact.id} 
-              marginBottom={"1rem"} 
-              display={"flex"} 
-              justifyContent={"space-between"} 
-              background={isCurrentlyUnavailable ? 'gray' : 'rgba(126, 101, 159 ,0.5)'}
-              padding={"0.5rem"} 
-              borderRadius={"0.5rem"}
-              _hover={{ background: 'lightpink' }}
-              cursor="pointer"
-            >
-              <Box>
-                <Heading>Name: {contact.name}</Heading>
-                <p>Contact no: {contact.phone}</p>
-                <Tooltip label={isCurrentlyUnavailable ? "Currently Unavailable" : "Currently Available"}>
-                  <Text color={isCurrentlyUnavailable ? "red" : "green"}>
-                    {isCurrentlyUnavailable ? "Unavailable" : (isCurrentlyAvailable ? "Available" : "Out of Working Hours")}
-                  </Text>
-                </Tooltip>
-              </Box>
-              <Box>
-                <AvavilityDetails id={contact.id} data = {contact.availability}/>
-                <TimeAvaliability id={contact.id} />
-                <EditContact id={contact.id} p_name={contact.name} p_phone={contact.phone} updateContactFunction={updateContactFunction} />
-                <DeletionModel id={contact.id}/>
-              </Box>
-            </Box>
-          );
-        }) : <></>
-      }
+      return (
+        <Box
+          key={contact.id}
+          marginBottom="1rem"
+          display={isLargerThan500?"flex":"block"}
+          justifyContent="space-between"
+          background={isCurrentlyUnavailable ? "gray" : "rgba(126, 101, 159 ,0.5)"}
+          padding="0.5rem"
+          borderRadius="0.5rem"
+          _hover={{ background: "lightpink" }}
+          cursor="pointer"
+        >
+          <Box>
+            <Heading>Name: {contact.name}</Heading>
+            <p>Contact no: {contact.phone}</p>
+            <Tooltip label={isCurrentlyUnavailable ? "Currently Unavailable" : "Currently Available"}>
+              <Text color={isCurrentlyUnavailable ? "red" : "green"}>
+                {isCurrentlyUnavailable
+                  ? "Unavailable"
+                  : isCurrentlyAvailable
+                  ? "Available"
+                  : "Out of Working Hours"}
+              </Text>
+            </Tooltip>
+          </Box>
+          <Box>
+            <AvavilityDetails
+              id={contact.id}
+              data={contact.availability}
+              index={index}
+              setLoading={setLoading}
+              setErrorBool={setErrorBool}
+            />
+            <TimeAvailability
+              id={contact.id}
+              setLoading={setLoading}
+              setErrorBool={setErrorBool}
+            />
+            <EditContact
+              id={contact.id}
+              p_name={contact.name}
+              p_phone={contact.phone}
+              updateContactFunction={updateContactFunction}
+              setLoading={setLoading}
+              setErrorBool={setErrorBool}
+            />
+            <DeletionModel
+              id={contact.id}
+              setLoading={setLoading}
+              setErrorBool={setErrorBool}
+            />
+          </Box>
+        </Box>
+      );
+    })
+  )
+) : (
+  <></>
+)}
+
     </Box>
   );
 }
 
-function EditContact({ id, p_name, p_phone, updateContactFunction }) {
+function EditContact({ id, p_name, p_phone, updateContactFunction,setLoading,setErrorBool }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [name, setName] = useState(p_name);
-  const [phone, setPhone] = useState(p_phone);
   const selector = useSelector(store => store.contactReducer);
   const dispatch = useDispatch();
 
@@ -147,7 +202,7 @@ function EditContact({ id, p_name, p_phone, updateContactFunction }) {
     <>
       <Button onClick={onOpen} margin={"0.5rem"}>Edit</Button>
 
-      <Modal isOpen={isOpen} onClose={()=>{onClose();dispatch(getContact());}}>
+      <Modal isOpen={isOpen} onClose={()=>{onClose();dispatch(getContact(setLoading,setErrorBool));}}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Edit Contact</ModalHeader>
@@ -169,7 +224,7 @@ function EditContact({ id, p_name, p_phone, updateContactFunction }) {
 }
 
 
-function DeletionModel({ id }) {
+function DeletionModel({ id ,setLoading,setErrorBool}) {
   
   const { isOpen, onOpen, onClose } = useDisclosure();
   const selector = useSelector(store => store.contactReducer);
@@ -180,7 +235,7 @@ function DeletionModel({ id }) {
     <>
       <Button onClick={onOpen} margin={"0.5rem"}>Delete</Button>
 
-      <Modal isOpen={isOpen} onClose={()=>{onClose();dispatch(getContact());}}>
+      <Modal isOpen={isOpen} onClose={()=>{onClose();dispatch(getContact(setLoading,setErrorBool));}}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Edit Contact</ModalHeader>
@@ -200,21 +255,26 @@ function DeletionModel({ id }) {
   );
 }
 
-function AvavilityDetails({ data,id }) {
+function AvavilityDetails({ data,id,index ,setLoading,setErrorBool}) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const selector = useSelector(store => store.contactReducer);
   const dispatch = useDispatch();
   const toast = useToast();
-function deleteContactAvalibility(date){
+function deleteContactAvalibility(date,idx){
   console.log(date)
-    deleteAvaliablity(id,date,toast);
+    deleteAvaliablity(id,date,toast,()=>{
+      const tempData = [...selector.contacts];
+      tempData[index].availability.splice(idx,1);
+      dispatch({type:GET_ALL_CONTACTS,payload:tempData});
+    });
+    
 }
 
   return (
     <>
       <Button onClick={onOpen} margin={"0.5rem"}>Avaliablity Details</Button>
 
-      <Modal isOpen={isOpen} onClose={()=>{onClose();dispatch(getContact());}}>
+      <Modal isOpen={isOpen} onClose={()=>{onClose();}}>
         <ModalOverlay />
         <ModalContent maxWidth="90vw" width="90%">
           <ModalHeader>Avaliablity Details</ModalHeader>
@@ -235,7 +295,7 @@ function deleteContactAvalibility(date){
     <Tbody>
       
         {
-          data.length>0?[...data].sort(function(a, b){return a > b}).map((e,index)=>(
+          data.length>0?[...data].sort(function(a, b){return a > b}).map((e,idx)=>(
             e.day?
             <Tr key={e.date}>
               <Td>{e.day}</Td>
@@ -243,7 +303,7 @@ function deleteContactAvalibility(date){
               <Td>{e.end_time}</Td>
               <Td>{e.unavailable_start} to {e.unavailable_end}</Td>
               <Td>{e.date}</Td>
-              <Td ><Button onClick={es=>{deleteContactAvalibility(e.date)}}>DELETE</Button></Td>
+              <Td ><Button onClick={es=>{deleteContactAvalibility(e.date,idx)}}>DELETE</Button></Td>
             </Tr>:<></>
           )):<></>
          }
@@ -263,7 +323,7 @@ function deleteContactAvalibility(date){
   );
 }
 
-function TimeAvaliability({id}) {
+function TimeAvailability({ id, setLoading, setErrorBool }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedStartTime, setSelectedStartTime] = useState(null);
@@ -272,28 +332,74 @@ function TimeAvaliability({id}) {
   const [selectedUnavailableEnd, setSelectedUnavailableEnd] = useState(null);
   const toast = useToast();
   const dispatch = useDispatch();
+  
+  // 12-hour clock with 30-minute increments from 12:00 AM to 11:59 PM
   const timeSlots = [
-    '08:00 AM', '08:30 AM', '09:00 AM', '09:30 AM', '12:00 PM', '12:30 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '05:30 PM'
+    '12:00 AM', '12:30 AM', '01:00 AM', '01:30 AM', '02:00 AM', '02:30 AM', '03:00 AM', '03:30 AM', 
+    '04:00 AM', '04:30 AM', '05:00 AM', '05:30 AM', '06:00 AM', '06:30 AM', '07:00 AM', '07:30 AM',
+    '08:00 AM', '08:30 AM', '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
+    '12:00 PM', '12:30 PM', '01:00 PM', '01:30 PM', '02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM', 
+    '04:00 PM', '04:30 PM', '05:00 PM', '05:30 PM', '06:00 PM', '06:30 PM', '07:00 PM', '07:30 PM', 
+    '08:00 PM', '08:30 PM', '09:00 PM', '09:30 PM', '10:00 PM', '10:30 PM', '11:00 PM', '11:30 PM'
   ];
 
- 
+  // Function to convert time to minutes (to compare times)
   const timeToMinutes = (time) => {
     const [hours, minutes] = time.split(/[:\s]/);
-    const meridian = time.includes('PM') && hours !== '12' ? 12 * 60 : 0;
-    return parseInt(hours) * 60 + parseInt(minutes) + meridian;
+    const isPM = time.includes('PM');
+    const hourInMinutes = parseInt(hours) % 12 * 60; // Handles both 12 AM and 12 PM cases
+    const totalMinutes = hourInMinutes + parseInt(minutes) + (isPM ? 12 * 60 : 0);
+    return totalMinutes;
   };
 
-  
+  // Filter end time slots so they are after the selected start time but within the same day
   const filteredEndTimeSlots = timeSlots.filter(time => {
     return selectedStartTime ? timeToMinutes(time) > timeToMinutes(selectedStartTime) : true;
   });
 
-  
-  const filteredUnavailableEndSlots = timeSlots.filter(time => {
-    return selectedUnavailableStart ? timeToMinutes(time) > timeToMinutes(selectedUnavailableStart) : true;
+  // Unavailable start time should be between the selected available start and end times
+  const filteredUnavailableStartSlots = timeSlots.filter(time => {
+    return selectedStartTime && selectedEndTime
+      ? timeToMinutes(time) > timeToMinutes(selectedStartTime) && timeToMinutes(time) < timeToMinutes(selectedEndTime)
+      : false;
   });
 
+  // Unavailable end time should be between unavailable start and available end times
+  const filteredUnavailableEndSlots = timeSlots.filter(time => {
+    return selectedUnavailableStart && selectedEndTime
+      ? timeToMinutes(time) > timeToMinutes(selectedUnavailableStart) && timeToMinutes(time) < timeToMinutes(selectedEndTime)
+      : false;
+  });
+
+  const getDayOfWeek = (date) => {
+    const validDate = new Date(date); // Ensure it's a Date object
+    return validDate.toLocaleDateString('en-US', { weekday: 'long' });
+  };
+  const formatTimeWithDate = (date, time) => {
+    const validDate = new Date(date); // Ensure it's a Date object
+    let [hours, minutes] = time.split(/[:\s]/); // Split the time string (e.g., '02:30 PM')
+    
+    const isPM = time.includes('PM');
+    
+    // Convert to 24-hour format
+    if (isPM && hours !== '12') {
+      hours = parseInt(hours) + 12;
+    } else if (!isPM && hours === '12') {
+      hours = '00'; // Handle 12 AM case
+    }
   
+    // Set hours and minutes to the validDate
+    validDate.setHours(parseInt(hours), parseInt(minutes), 0);
+  
+    // Return only the time portion in 24-hour format
+    const formattedTime = validDate.toTimeString().split(' ')[0]; // e.g., "14:30:00"
+    return formattedTime;
+  };
+  
+  
+  
+  
+  // Handles the submission of the selected times
   const handleSubmit = async () => {
     if (!selectedDate || !selectedStartTime || !selectedEndTime) {
       toast({
@@ -309,7 +415,7 @@ function TimeAvaliability({id}) {
     if (selectedUnavailableStart && !selectedUnavailableEnd) {
       toast({
         title: "Selection Error",
-        description: "Please select an unavailable start and end time.",
+        description: "Please select both unavailable start and end times.",
         status: "error",
         duration: 4000,
         isClosable: true,
@@ -317,42 +423,32 @@ function TimeAvaliability({id}) {
       return;
     }
   
-    
-    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const day = daysOfWeek[selectedDate.getDay()];
+    // Ensure the selectedDate is a valid date object
+    const validSelectedDate = new Date(selectedDate);
   
-    
-    console.log(id)
     const data = {
       id,
-      day, 
-      date: selectedDate.toISOString().split('T')[0], 
-      startTime: selectedStartTime,
-      endTime: selectedEndTime,
-      u_startTime: selectedUnavailableStart || "", 
-      u_endTime: selectedUnavailableEnd || "",    
+      date: validSelectedDate.toISOString().split('T')[0], // YYYY-MM-DD format
+      day: getDayOfWeek(validSelectedDate), // Get the day of the week (e.g., Monday)
+      startTime: formatTimeWithDate(validSelectedDate, selectedStartTime),
+      endTime: formatTimeWithDate(validSelectedDate, selectedEndTime),
+      u_startTime: selectedUnavailableStart ? formatTimeWithDate(validSelectedDate, selectedUnavailableStart) : "", 
+      u_endTime: selectedUnavailableEnd ? formatTimeWithDate(validSelectedDate, selectedUnavailableEnd) : "",    
     };
   
     try {
-      
+      // Call function to handle creation of availability
       createAvaliablity(data, toast);
-      console.log(id,"hdfhdf")
-      
-      
-  
-     
     } catch (error) {
-      
       console.log("Error submitting availability:", error);
     }
   };
-  
 
   return (
     <>
       <Button onClick={onOpen} margin={"0.5rem"}>Set Availability</Button>
 
-      <Modal isOpen={isOpen} onClose={()=>{onClose();dispatch(getContact());}} size="full">
+      <Modal isOpen={isOpen} onClose={() => { onClose(); dispatch(getContact(setLoading, setErrorBool)); }} size="full">
         <ModalOverlay />
         <ModalContent maxWidth="90vw" width="90%">
           <ModalHeader>Select Availability</ModalHeader>
@@ -365,29 +461,19 @@ function TimeAvaliability({id}) {
               justifyContent="center"
               padding="2rem"
             >
-             
+              {/* Date Picker */}
               <Box marginBottom={["2rem", "2rem", "0"]} marginRight={["0", "0", "3rem"]}>
                 <Text fontSize="2xl" fontWeight="bold" marginBottom="1.5rem">Select Date:</Text>
-                <Box
-                  border="1px solid"
-                  borderColor="gray.300"
-                  borderRadius="md"
-                  padding="1rem"
-                  fontSize="lg"
-                >
-                  <DatePicker
-                    selected={selectedDate}
-                    onChange={(date) => setSelectedDate(date)}
-                    inline
-                  />
+                <Box border="1px solid" borderColor="gray.300" borderRadius="md" padding="1rem" fontSize="lg">
+                  <DatePicker selected={selectedDate} onChange={(date) => setSelectedDate(date)} inline />
                 </Box>
               </Box>
 
-              
+              {/* Time Picker for Available Time */}
               <Box>
                 <Text fontSize="2xl" fontWeight="bold" marginBottom="1.5rem">Select Available Time:</Text>
                 <SimpleGrid columns={2} spacing={2}>
-                  
+                  {/* Start Time */}
                   <Box>
                     <Text fontSize="lg" marginBottom="0.5rem">Start Time:</Text>
                     {timeSlots.map((time, index) => (
@@ -405,7 +491,7 @@ function TimeAvaliability({id}) {
                     ))}
                   </Box>
 
-                  
+                  {/* End Time */}
                   <Box>
                     <Text fontSize="lg" marginBottom="0.5rem">End Time:</Text>
                     {filteredEndTimeSlots.map((time, index) => (
@@ -424,22 +510,21 @@ function TimeAvaliability({id}) {
                   </Box>
                 </SimpleGrid>
 
-                
                 {selectedStartTime && selectedEndTime && (
                   <Box marginTop="2rem">
                     <Text fontSize="lg">Selected Available Time: {selectedStartTime} - {selectedEndTime}</Text>
                   </Box>
                 )}
 
-                
+                {/* Time Picker for Unavailable Time */}
                 {selectedStartTime && selectedEndTime && (
                   <Box marginTop="3rem">
-                    <Text fontSize="2xl" fontWeight="bold" marginBottom="1.5rem">Select Unavailable Time:</Text>
+                    <Text fontSize="2xl" fontWeight="bold" marginBottom="1.5rem">Select Unavailable Time (Optional):</Text>
                     <SimpleGrid columns={2} spacing={2}>
-                      
+                      {/* Unavailable Start Time */}
                       <Box>
                         <Text fontSize="lg" marginBottom="0.5rem">Unavailable Start:</Text>
-                        {timeSlots.map((time, index) => (
+                        {filteredUnavailableStartSlots.map((time, index) => (
                           <Button
                             key={index}
                             fontSize="lg"
@@ -454,7 +539,7 @@ function TimeAvaliability({id}) {
                         ))}
                       </Box>
 
-                      
+                      {/* Unavailable End Time */}
                       <Box>
                         <Text fontSize="lg" marginBottom="0.5rem">Unavailable End:</Text>
                         {filteredUnavailableEndSlots.map((time, index) => (
@@ -473,7 +558,6 @@ function TimeAvaliability({id}) {
                       </Box>
                     </SimpleGrid>
 
-                   
                     {selectedUnavailableStart && selectedUnavailableEnd && (
                       <Box marginTop="2rem">
                         <Text fontSize="lg">Selected Unavailable Time: {selectedUnavailableStart} - {selectedUnavailableEnd}</Text>
@@ -486,16 +570,17 @@ function TimeAvaliability({id}) {
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleSubmit} fontSize="lg" padding="1.5rem">
-              Save
-            </Button>
-           
+            <Button onClick={handleSubmit} colorScheme="blue" mr={3}>Submit</Button>
+            <Button onClick={() => { onClose(); dispatch(getContact(setLoading, setErrorBool)); }}>Close</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
     </>
   );
 }
+
+
+
 
 
 

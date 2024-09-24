@@ -17,7 +17,8 @@ Phonebook Admin Manager is a web application designed to efficiently manage cont
 * Date Selection: Date picker for selecting availability dates
 * UI Framework: Chakra UI for a clean and accessible component library
 * Notifications: Toast messages for success/error feedback
-
+* Responsive Design
+* Debouncing on search functionality
 
 ## Database Dump
 ------------

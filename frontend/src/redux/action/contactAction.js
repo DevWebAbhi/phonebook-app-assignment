@@ -2,21 +2,28 @@ import axios from "axios";
 import { GET_ALL_CONTACTS } from "../actionTypes.js/contactActionTypes";
 
 
-export const getContact = ()=>async(dispatch)=>{
+export const getContact = (setLoading,setErrorBool)=>async(dispatch)=>{
     try {
+        setLoading(true);
+        setErrorBool(false);
         const get = await axios.get(`https://phonebook-app-assignment.onrender.com/contact`);
         console.log(get)
         dispatch({type:GET_ALL_CONTACTS,payload:get.data.contacts[0]});
         return get;
     } catch (error) {
         console.log(error)
+        setErrorBool(true);
         return error;
+    }finally{
+        setLoading(false);
     }
 }
 
-export const getSearchedContact = (search,toast)=>async(dispatch)=>{
+export const getSearchedContact = (search,toast,setLoading,setErrorBool)=>async(dispatch)=>{
     console.log(search)
     try {
+        setLoading(true);
+        setErrorBool(false);
         const get = await axios.get(`https://phonebook-app-assignment.onrender.com/contact/search`,{params:{search}});
         console.log(get)
         toast({
@@ -35,8 +42,11 @@ export const getSearchedContact = (search,toast)=>async(dispatch)=>{
             duration: 9000,
             isClosable: true,
           });
-        return error;
-    }
+          setErrorBool(true);
+          return error;
+      }finally{
+          setLoading(false);
+      }
 }
 
 export const createContact =async(data,toast)=>{
@@ -123,7 +133,6 @@ export const createAvaliablity =async(data,toast)=>{
             duration: 9000,
             isClosable: true,
           })
-          
         return createAvaliablity;
     } catch (error) {
         toast({
@@ -137,7 +146,7 @@ export const createAvaliablity =async(data,toast)=>{
     }
 }
 
-export const deleteAvaliablity =async(id,date,toast)=>{
+export const deleteAvaliablity =async(id,date,toast,update)=>{
     try {
        
         const createAvaliablity = await axios.delete(`https://phonebook-app-assignment.onrender.com/avalivility/delete/${id}/${date}`);
@@ -148,7 +157,7 @@ export const deleteAvaliablity =async(id,date,toast)=>{
             duration: 9000,
             isClosable: true,
           })
-          
+          update();
         return createAvaliablity;
     } catch (error) {
         toast({
