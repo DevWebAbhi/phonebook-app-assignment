@@ -396,6 +396,16 @@ function AvavilityDetails({ data, id, index, setLoading, setErrorBool }) {
   const selector = useSelector((store) => store.contactReducer);
   const dispatch = useDispatch();
   const toast = useToast();
+
+  // Function to convert 24-hour time to 12-hour AM/PM format
+  function convertToAmPm(timeString) {
+    const [hours, minutes] = timeString.split(":");
+    let hour = parseInt(hours, 10);
+    const ampm = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12; // Convert 0 to 12 for midnight
+    return `${hour}:${minutes} ${ampm}`;
+  }
+
   function deleteContactAvalibility(date, idx) {
     console.log(date);
     deleteAvaliablity(id, date, toast, () => {
@@ -429,7 +439,7 @@ function AvavilityDetails({ data, id, index, setLoading, setErrorBool }) {
                     <Th>Day</Th>
                     <Th>Start Time</Th>
                     <Th>End Time</Th>
-                    <Th>Unavaliable Time</Th>
+                    <Th>Unavailable Time</Th>
                     <Th>Date</Th>
                   </Tr>
                 </Thead>
@@ -443,10 +453,10 @@ function AvavilityDetails({ data, id, index, setLoading, setErrorBool }) {
                         e.day ? (
                           <Tr key={e.date}>
                             <Td>{e.day}</Td>
-                            <Td>{e.start_time}</Td>
-                            <Td>{e.end_time}</Td>
+                            <Td>{convertToAmPm(e.start_time)}</Td>
+                            <Td>{convertToAmPm(e.end_time)}</Td>
                             <Td>
-                              {e.unavailable_start} to {e.unavailable_end}
+                              {convertToAmPm(e.unavailable_start)} to {convertToAmPm(e.unavailable_end)}
                             </Td>
                             <Td>{e.date}</Td>
                             <Td>
@@ -477,6 +487,7 @@ function AvavilityDetails({ data, id, index, setLoading, setErrorBool }) {
     </>
   );
 }
+
 
 function TimeAvailability({ id, setLoading, setErrorBool }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -625,10 +636,10 @@ function TimeAvailability({ id, setLoading, setErrorBool }) {
       endTime: formatTimeWithDate(validSelectedDate, selectedEndTime),
       u_startTime: selectedUnavailableStart
         ? formatTimeWithDate(validSelectedDate, selectedUnavailableStart)
-        : "",
+        : "00:00:00",
       u_endTime: selectedUnavailableEnd
         ? formatTimeWithDate(validSelectedDate, selectedUnavailableEnd)
-        : "",
+        : "00:00:00",
     };
 
     try {
